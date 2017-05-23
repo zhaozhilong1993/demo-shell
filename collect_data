@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+
+import pycurl
+import cStringIO
+import sys
+ 
+import time
+
+
+buf = cStringIO.StringIO()
+ 
+
+c = pycurl.Curl()
+c.setopt(c.URL, 'https://www.jubi.com/coin/etc/trades')
+c.setopt(c.WRITEFUNCTION, buf.write)
+c.perform()
+
+
+data_str = buf.getvalue()
+try:
+    data = eval(data_str.split('\n')[0])
+except:
+    sys.exit()
+
+buy_num = 0
+buy_count = 0
+for buy in data['buy']:
+    buy_num = buy_num + buy[1]
+    buy_count = buy_count + buy[1] * buy[0]
+
+sell_num = 0
+sell_count = 0
+for sell in data['sell']:
+    sell_num = sell_num + sell[1]
+    sell_count = sell_count + sell[0] * sell[1]
+
+date = time.ctime()
+
+print "Now time: %s" % date
+print "max buy: %f, all buy num: %f, all buy: %f" % (data['buy'][0][0], buy_num, buy_count)
+print "min sell: %f, all sell num: %f, all sell: %f" % (data['sell'][0][0], sell_num, sell_count)
